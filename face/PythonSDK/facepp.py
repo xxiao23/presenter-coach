@@ -295,6 +295,7 @@ _APIS = [
         'paths': [
             '/detect',
             '/segment',
+            '/skeleton',
         ]
     },
     {
