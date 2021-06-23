@@ -77,14 +77,20 @@ class Client():
                     print("handshake success, result: " + result)
 
                 if result_dict["action"] == "result":
-                    result_1 = result_dict
-                    # result_2 = json.loads(result_1["cn"])
-                    # result_3 = json.loads(result_2["st"])
-                    # result_4 = json.loads(result_3["rt"])
-                    #print("rtasr result: " + result_1["data"])
-                    with open('test_zhi-zhenhao_1min/seg_id_' + str(seg_id) + '.json', 'w') as json_file:
-                        json.dump(result, json_file)
-                    print(seg_id)
+                    result = json.loads(result_dict["data"])
+                    if result['cn']['st']['type'] == "0":
+                        #with open('zhi_new/seg_id_' + str(seg_id) + '.json', 'w') as json_file:
+                            #json.dump(result, json_file)
+                        bg = int(result['cn']['st']['bg'])
+                        txt = result['cn']['st']['rt'][0]['ws']
+
+                        for i in range(len(txt)):
+                            word = txt[i]['cw'][0]['w']
+                            wb = int(txt[i]['wb'])
+                            we = int(txt[i]['we'])
+                            actual_wb = bg + wb * 10
+                            actual_we = bg + we * 10
+                            print(actual_wb, " ", actual_we, " ", word)
                     seg_id = seg_id + 1
                 if result_dict["action"] == "error":
                     print("rtasr error: " + result)
