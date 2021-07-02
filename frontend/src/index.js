@@ -1,30 +1,66 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Webcam from 'react-webcam';
 
-const WebcamCapture = () => {
-  const webcamRef = React.useRef(null);
-  const [imgSrc, setImgSrc] = React.useState(null);
+class AudioVideoStream extends React.Component {
+  constructor(props) {
+    super(props);
+    console.log('AudioVideoStream constructor');
+  }
 
-  const capture = React.useCallback(() => {
-    const imgSrc = webcamRef.current.getScreenshot();
-    setImgSrc(imgSrc);
-  }, [webcamRef, setImgSrc]);
+  componentDidMount() {
+    console.log('componentDidMount');
+    const constraints = {
+      video: { width: { exact: 640 }, height: { exact: 480 } },
+      audio: true,
+    };
 
-  return (
-    <>
-      <Webcam
-        audio={false}
-        ref={webcamRef}
-        screenshotFormat='image/jpeg'
-      />
-      <button onClick={capture}>Capture photo</button>
-      {imgSrc && (
-        <img  src={imgSrc}/>
-      )}
-    </>
-  )
+    const videoElement = document.querySelector('video');
+    if (videoElement) {
+      console.log('Find video element');
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then((stream) => {
+          console.log('stream');
+          console.log(stream);
+
+
+          console.log('set window stream');
+          window.stream = stream;
+
+          console.log('set video element stream');
+          console.log(videoElement);
+          videoElement.srcObject = stream;
+
+          const track = stream.getVideoTracks()[0];
+          const imageCapture = new ImageCapture(track);
+
+          setInterval(() => {
+            imageCapture.takePhoto()
+              .then(blob => {
+                console.log('take snapshot')
+                console.log(blob);
+              })
+              .catch(error => console.log(error));
+          }, 5000);
+        })
+        .catch(error => console.error(error));
+    } else {
+      console.error('Can\'t find video elemeent');
+    }
+
+  }
+
+  render() {
+    return (
+      <div>
+        <video 
+          autoPlay 
+          muted
+          playsInline />
+      </div>
+    );
+  }
 }
+
 // Mount the app to the mount point.
 const root = document.getElementById('app');
-ReactDOM.render(<WebcamCapture />, root);
+ReactDOM.render(<AudioVideoStream />, root);
