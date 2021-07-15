@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import axios from 'axios';
 
 class AudioVideoStream extends React.Component {
   constructor(props) {
@@ -57,7 +58,6 @@ class AudioVideoStream extends React.Component {
 
     canvasCtx.lineTo(canvas.width, canvas.height/2);
     canvasCtx.stroke();
-
   }
 
   visualize(stream) {
@@ -109,8 +109,23 @@ class AudioVideoStream extends React.Component {
           this.mediaRecorder.ondataavailable = (event) => {
             console.log('media recorder data available');
             if (event.data.size > 0) {
-              console.log('media recorder data:');
+              console.log('media recorder blob:');
               console.log(event.data);
+              event.data.text().then(text => {
+                axios({
+                  auth: {
+                    username: 'admin',
+                    password: '123456',
+                  },
+                  method: 'post',
+                  url: 'http://127.0.0.1:8000/mediablobs/',
+                  data: {
+                    title: 'presenter media data',
+                    data: text,
+                  }
+                })
+                  .then(res => console.log('send media data to server'));
+              });
               this.chunks.push(event.data);
               console.log(this.chunks);
             } else {
